@@ -41,14 +41,13 @@ jobs:
             name: "Cache gems"
             uses: "actions/cache@v3.3.2"
             with:
-                # This is experimental!
+                # This is experimental! find ~/.local/share/gem/
                 path: "~/.local/share/gem"
                 key: "${{ runner.os }}-${{ steps.gem_cache.outputs.key }}"
         -
             name: "Install github-linguist"
             run: |
                 gem install --user-install github-linguist
-                find ~/.local/share/gem
         -
             name: "Run github-linguist"
             run: |
