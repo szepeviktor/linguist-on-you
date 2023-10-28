@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow
+
+name: "Linguist"
+
+on:
+    workflow_dispatch:
+        inputs:
+            repository:
+                type: "string"
+                description: "Repository: username/project"
+                required: true
+
+permissions: {}
+
+concurrency:
+    group: "${{ github.workflow }}-${{ github.ref }}"
+    cancel-in-progress: true
+
+jobs:
+    linguist:
+        name: "Language statistics - ${{ inputs.repository }}"
+        runs-on: "ubuntu-22.04"
+        timeout-minutes: 5
+        steps:
+        -
+            name: "Checkout repository"
+            uses: "actions/checkout@v4.1.1"
+            with:
+                repository: "${{ inputs.repository }}"
+        -
+            name: "Set up Ruby"
+            uses: "ruby/setup-ruby@v1"
+            with:
+                ruby-version: "ruby"
+        -
+            name: "Determine gem cache key"
+            id: "gem_cache"
+            run: |
+                echo "key=ruby-$(ruby -e 'puts RUBY_VERSION')-gem-$(gem environment version)" >>"${GITHUB_OUTPUT}"
+        -
+            name: "Cache gems"
+            uses: "actions/cache@v3.3.2"
+            with:
+                # This is experimental!
+                path: "~/.local/share/gem"
+                key: "${{ runner.os }}-${{ steps.gem_cache.outputs.key }}"
+        -
+            name: "Install github-linguist"
+            run: |
+                gem install --user-install github-linguist
+                find ~/.local/share/gem
+        -
+            name: "Run github-linguist"
+            run: |
+                git archive HEAD | tar --list
+                {
+                    echo '```'
+                    "$(ruby -e 'puts Gem.user_dir')/bin/github-linguist"
+                    echo '```'
+                } >>"${GITHUB_STEP_SUMMARY}"
