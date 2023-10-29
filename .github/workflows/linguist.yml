@@ -54,6 +54,7 @@ jobs:
                 git ls-files --cached | git check-attr --stdin --all | grep -F ': linguist-' || true
                 {
                     echo '```'
+                    printf '%-7s %-10s %s\n' "percent" "bytes" "grammar" "-------" "-----" "-------"
                     "$(ruby -e 'puts Gem.user_dir')/bin/github-linguist"
                     echo '```'
                 } >>"${GITHUB_STEP_SUMMARY}"
