@@ -51,7 +51,7 @@ jobs:
         -
             name: "Run github-linguist"
             run: |
-                git archive HEAD | tar --list
+                git ls-files --cached | git check-attr --stdin --all | grep -F ': linguist-' || true
                 {
                     echo '```'
                     "$(ruby -e 'puts Gem.user_dir')/bin/github-linguist"
